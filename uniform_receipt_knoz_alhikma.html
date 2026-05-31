@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0066)file:///C:/Users/NEW/Downloads/uniform_receipt_knoz_alhikma_9.html -->
+<!-- saved from url=(0067)file:///C:/Users/NEW/Downloads/uniform_receipt_knoz_alhikma_11.html -->
 <html lang="ar" dir="rtl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -353,12 +353,34 @@
       </div>
       <div class="field-row">
         <div class="field">
+          <label>رقم الهوية *</label>
+          <input type="text" id="nationalId" placeholder="XXXXXXXXXX" dir="ltr">
+        </div>
+        <div class="field">
           <label>رقم الجوال *</label>
           <input type="tel" id="phone" placeholder="05XXXXXXXX" dir="ltr">
         </div>
+      </div>
+      <div class="field-row">
         <div class="field">
           <label>تاريخ الاستلام *</label>
           <input type="date" id="receiptDate">
+        </div>
+      </div>
+
+      <div class="section-title"><span class="icon">👤</span> القائم على التسليم</div>
+      <div class="field-row single">
+        <div class="field">
+          <label>اسم المشرف المسلّم *</label>
+          <select id="supervisor">
+            <option value="">-- اختر المشرف --</option>
+            <option>محمد السيد</option>
+            <option>اسلام صبره</option>
+            <option>عمر عبدالرحيم</option>
+            <option>علي مشرقي</option>
+            <option>احمد متولي</option>
+            <option>احمد عبدالصمد</option>
+          </select>
         </div>
       </div>
 
@@ -510,7 +532,7 @@
     return { img: c.toDataURL('image/png'), w: c.width, h: c.height };
   }
 
-  function generatePDF(name, branch, phone, date, itemsList, notes, ref) {
+  function generatePDF(name, branch, phone, nationalId, supervisor, date, itemsList, notes, ref) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const pw = 210;
@@ -550,6 +572,8 @@
 
     addField('اسم مدير الفرع', name);
     addField('الفرع', branch);
+    addField('رقم الهوية', nationalId);
+    addField('القائم على التسليم', supervisor);
     addField('رقم الجوال', phone);
     addField('تاريخ الاستلام', date);
     addField('رقم المرجع', ref);
@@ -612,9 +636,13 @@
     const branch = document.getElementById('branchName').value.trim();
     const date = document.getElementById('receiptDate').value;
     const phone = document.getElementById('phone').value.trim();
+    const nationalId = document.getElementById('nationalId').value.trim();
+    const supervisor = document.getElementById('supervisor').value;
     const notes = document.getElementById('notes').value.trim();
     if (!name) { alert('يرجى إدخال اسم مدير الفرع'); return; }
     if (!branch) { alert('يرجى إدخال اسم الفرع'); return; }
+    if (!nationalId) { alert('يرجى إدخال رقم الهوية'); return; }
+    if (!supervisor) { alert('يرجى اختيار المشرف القائم على التسليم'); return; }
     if (!date) { alert('يرجى تحديد تاريخ الاستلام'); return; }
     if (!hasSig) { alert('يرجى التوقيع أولاً'); return; }
 
@@ -633,6 +661,8 @@
       managerName: name,
       branchName: branch,
       phone: phone,
+      nationalId: nationalId,
+      supervisor: supervisor,
       receiptDate: date,
       items: itemsList.join(' | '),
       notes: notes,
@@ -644,7 +674,7 @@
     btn.disabled = true;
 
     // إرسال للشيت في الخلفية
-    fetch('https://script.google.com/macros/s/AKfycbx3nRM3npbxTF_HXU_V8TtKSLPbPzgu4GxdLa8-IhGMhUMXWiPa2QvxUw39T45Klj4H/exec', {
+    fetch('https://script.google.com/macros/s/AKfycbwDgqVr1UI2T5SFcKnAEx_6CvKR-I2YBTSR7OQW7EaMR5tfWRyE7I7EAej1E17jRLd2/exec', {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
@@ -660,7 +690,7 @@
       document.getElementById('successDetails').innerHTML =
         `<strong>${name}</strong><br>فرع: ${branch}<br>تاريخ الاستلام: ${formatted}`;
       document.getElementById('refNumber').textContent = ref;
-      generatePDF(name, branch, phone, date, itemsList, notes, ref);
+      generatePDF(name, branch, phone, nationalId, supervisor, date, itemsList, notes, ref);
     }, 500);
   }
 
